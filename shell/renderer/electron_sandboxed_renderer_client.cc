@@ -90,6 +90,12 @@ v8::Local<v8::Value> CreatePreloadScript(v8::Isolate* isolate,
                                        preloadSrc);
 }
 
+double Uptime() {
+  return (base::Time::NowFromSystemTime() -
+          base::Process::Current().CreationTime())
+      .InSecondsF();
+}
+
 void InvokeHiddenCallback(v8::Handle<v8::Context> context,
                           const std::string& hidden_key,
                           const std::string& callback_name) {
@@ -137,6 +143,7 @@ void ElectronSandboxedRendererClient::InitializeBindings(
 
   ElectronBindings::BindProcess(isolate, &process, metrics_.get());
 
+  process.SetMethod("uptime", Uptime);
   process.Set("argv", base::CommandLine::ForCurrentProcess()->argv());
   process.SetReadOnly("pid", base::GetCurrentProcId());
   process.SetReadOnly("sandboxed", true);
